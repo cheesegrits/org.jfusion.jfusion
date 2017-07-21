@@ -4,6 +4,7 @@
 *.zip
 
 composer.phar
+composer.bat
 vendor/
 gitplugins/
 pluginpackages/

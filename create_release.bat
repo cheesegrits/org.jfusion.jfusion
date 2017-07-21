@@ -13,7 +13,7 @@ IF NOT EXIST c:\WINDOWS\system32\7za.exe (
 	goto end
 )
 IF NOT EXIST "C:\Program Files (x86)\GnuWin32\bin\sed.exe" (
-	echo "sed.exe does not exist! Please see create_release_readme.txt".
+	echo "sed.exe does not exist! Please see create_release_readme.txt". 
 	goto end
 )
 IF NOT EXIST "C:\Program Files\Git\bin\git.exe"  (
@@ -111,7 +111,7 @@ endlocal & goto :EOF
 	echo Create the jfusion plugin packages
 
 	FOR /f "tokens=*" %%G IN ('dir /d /b /a:d gitplugins\') DO (
-		if exist %FULLPATH%gitplugins\%%G\jfusion.xml (
+		if exist "%FULLPATH%gitplugins\%%G\jfusion.xml" (
 			call :CreatePackage gitplugins\%%G pluginpackages\jfusion_%%G.zip
 		) else (
 			echo Error: %FULLPATH%gitplugins\%%G\jfusion.xml was not found
@@ -131,8 +131,8 @@ endlocal & goto :EOF
 :createMain
 	echo Prepare the files for packaging
 
-	cd %FULLPATH%
-	call composer update --no-dev
+	cd "%FULLPATH%"
+	call "%FULLPATH%composer" update --no-dev
 
 	md tmp
 	md tmp\admin
@@ -151,6 +151,8 @@ endlocal & goto :EOF
 
 	md tmp\front
 	c:\windows\system32\xcopy /E /C /V /Y /EXCLUDE:%FULLPATH%exclude.txt "%FULLPATH%components\com_jfusion\*.*" "%FULLPATH%tmp\front" > NUL
+md tmp\front
+c:\windows\system32\xcopy /E /C /V /Y /EXCLUDE:"%FULLPATH%exclude.txt" "%FULLPATH%components\com_jfusion\*.*" "%FULLPATH%tmp\front" > NUL
 
 	md tmp\front\language
 	c:\windows\system32\xcopy /E /C /V /Y "%FULLPATH%language\en-GB\*.*" "%FULLPATH%tmp\front\language\en-GB\" > NUL
@@ -160,18 +162,21 @@ endlocal & goto :EOF
 
 	echo Update the revision number
 
-	echo Revision set to %REVISION%
-	echo Timestamp set to %TIMESTAMP%
-	call :CreateXml %FULLPATH%tmp\jfusion
+echo Revision set to %REVISION%
+echo Timestamp set to %TIMESTAMP%
+call :CreateXml "%FULLPATH%tmp\jfusion"
 
 	echo Create the new master package
 
-	if exist %FULLPATH%*.zip (
-		del %FULLPATH%*.zip
+	if exist "%FULLPATH%*.zip" (
+	    echo del "%FULLPATH%*.zip"
+		del "%FULLPATH%*.zip"
 	)
 
+    echo 7za a "%FULLPATH%jfusion_package.zip" .\tmp\* -xr!*.svn*
 	7za a "%FULLPATH%jfusion_package.zip" .\tmp\* -xr!*.svn* > NUL
 
+    echo RMDIR "%FULLPATH%tmp" /S /Q
 	RMDIR "%FULLPATH%tmp" /S /Q
 endlocal & goto :EOF
 
@@ -195,27 +200,28 @@ endlocal & set "%1=%ut%" & goto :EOF
 
 	echo Creating: %TARGETDEST%
 
-	md %FULLPATH%tmppackage
+	md "%FULLPATH%tmppackage"
 
-	c:\windows\system32\xcopy /S /E /C /V /Y "%FULLPATH%%TARGETPATH%" "%FULLPATH%tmppackage" > NUL
+	echo d | c:\windows\system32\xcopy /S /E /C /V /Y "%FULLPATH%%TARGETPATH%" "%FULLPATH%tmppackage" > NUL
 
-	call :CreateXml %FULLPATH%tmppackage\%XMLFILE%
+	call :CreateXml "%FULLPATH%tmppackage\%XMLFILE%"
 
-	7za a "%FULLPATH%%TARGETDEST%" %FULLPATH%tmppackage\* -xr!*.svn* > NUL
+	7za a "%FULLPATH%%TARGETDEST%" "%FULLPATH%tmppackage\*" -xr!*.svn* > NUL
 
 	RMDIR "%FULLPATH%tmppackage" /S /Q
 endlocal & goto :EOF
 
 :CreateXml
 	setlocal enableextensions
-	SET FILE=%1
+	echo SET FILE=%~1
+	SET FILE=%~1
 
 	move "%FILE%.xml" "%FILE%.tmp" >nul
 	"C:\Program Files (x86)\GnuWin32\bin\sed.exe" "s/<revision>\$revision\$<\/revision>/<revision>%REVISION%<\/revision>/g" "%FILE%.tmp" > "%FILE%.xml"
 	move "%FILE%.xml" "%FILE%.tmp" >nul
 	"C:\Program Files (x86)\GnuWin32\bin\sed.exe" "s/<timestamp>\$timestamp\$<\/timestamp>/<timestamp>%TIMESTAMP%<\/timestamp>/g" "%FILE%.tmp" > "%FILE%.xml"
 
-	del %FILE%.tmp
+	del "%FILE%.tmp"
 endlocal & goto :EOF
 
 :CheckoutPlugins
@@ -243,19 +249,23 @@ endlocal & goto :EOF
 :CheckoutPlugin
 	setlocal enableextensions
 	echo Building Plugin %1
-	if NOT exist %PLUGIN_DIR% (
+	if NOT exist "%PLUGIN_DIR%" (
+	    echo mkdir "%PLUGIN_DIR%"
 		mkdir "%PLUGIN_DIR%"
 	)
 
 	cd "%PLUGIN_DIR%"
-	if NOT exist %PLUGIN_DIR%%1 (
+	if NOT exist "%PLUGIN_DIR%%1" (
+	    echo call git clone "https://github.com/jfusion/org.jfusion.plugin.%1" "%PLUGIN_DIR%%1"
 		call git clone "https://github.com/jfusion/org.jfusion.plugin.%1" "%PLUGIN_DIR%%1"
 	)
+
+	echo cd %1
 	cd %1
 	call git fetch --all
 	call git reset --hard origin/master
 
-	call composer update --no-dev
+	call "%FULLPATH%composer" update --no-dev
 endlocal & goto :EOF
 
 :end
