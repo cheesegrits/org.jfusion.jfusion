@@ -150,9 +150,8 @@ endlocal & goto :EOF
 	c:\windows\system32\xcopy /E /C /V /Y "%FULLPATH%administrator\language\en-GB\*.*" "%FULLPATH%tmp\admin\language\en-GB\" > NUL
 
 	md tmp\front
-	c:\windows\system32\xcopy /E /C /V /Y /EXCLUDE:%FULLPATH%exclude.txt "%FULLPATH%components\com_jfusion\*.*" "%FULLPATH%tmp\front" > NUL
-md tmp\front
-c:\windows\system32\xcopy /E /C /V /Y /EXCLUDE:"%FULLPATH%exclude.txt" "%FULLPATH%components\com_jfusion\*.*" "%FULLPATH%tmp\front" > NUL
+	rem can't use %FULLPATH% for EXCLUDE as it needs FAT style short names, so if project is in (say) C:\Users\Your Longname\PHPStormProjects ...
+	c:\windows\system32\xcopy /E /C /V /Y /EXCLUDE:.\exclude.txt "%FULLPATH%components\com_jfusion\*.*" "%FULLPATH%tmp\front"
 
 	md tmp\front\language
 	c:\windows\system32\xcopy /E /C /V /Y "%FULLPATH%language\en-GB\*.*" "%FULLPATH%tmp\front\language\en-GB\" > NUL
@@ -213,7 +212,6 @@ endlocal & goto :EOF
 
 :CreateXml
 	setlocal enableextensions
-	echo SET FILE=%~1
 	SET FILE=%~1
 
 	move "%FILE%.xml" "%FILE%.tmp" >nul

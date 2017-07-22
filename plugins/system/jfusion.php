@@ -55,7 +55,7 @@ class plgSystemJfusion extends JPlugin
      * @access protected
      * @since  1.0
      */
-    function plgSystemJfusion(&$subject, $config)
+    function __construct(&$subject, $config)
     {
         parent::__construct($subject, $config);
         $this->loadLanguage('plg_system_jfusion', JPATH_ADMINISTRATOR);
