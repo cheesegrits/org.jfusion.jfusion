@@ -52,7 +52,7 @@ class plgAuthenticationjfusion extends JPlugin
 	 * @since 1.5
 	 * @return void
 	 */
-	function plgAuthenticationjfusion(&$subject, $config)
+	function __construct(&$subject, $config)
 	{
 		parent::__construct($subject, $config);
 		//load the language
