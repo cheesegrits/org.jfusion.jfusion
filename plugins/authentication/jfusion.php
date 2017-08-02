@@ -67,6 +67,15 @@ class plgAuthenticationjfusion extends JPlugin
 	 * @return void
 	 */
 	function onUserAuthenticate($credentials, $options, &$response){
+	    // $$$ hugh - if Cookie auth, password not set
+        if (!isset($credentials['password']) || empty($credentials['password']))
+        {
+            $response->status        = JAuthentication::STATUS_FAILURE;
+            $response->error_message = JText::_('JGLOBAL_AUTH_EMPTY_PASS_NOT_ALLOWED');
+
+            return;
+        }
+
 		jimport('joomla.user.helper');
 
 		$mainframe = JFactory::getApplication();
