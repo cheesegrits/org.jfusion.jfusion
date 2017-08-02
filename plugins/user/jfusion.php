@@ -52,7 +52,7 @@ class plgUserJfusion extends JPlugin
 	 * @since 1.5
 	 * @return void
 	 */
-	function plgUserJfusion(&$subject, $config)
+	function __construct(&$subject, $config)
 	{
 		parent::__construct($subject, $config);
 		//load the language
@@ -183,6 +183,11 @@ class plgUserJfusion extends JPlugin
 				if (isset($user['username'])) {
 					$info->username = $user['username'];
 				}
+
+				// $$$ hugh = set login type
+				if (isset($user['type'])) {
+				    $info->type = $user['type'];
+                }
 
 				$userinfo = new \JFusion\User\Userinfo(null);
 				$userinfo->bind($info);
